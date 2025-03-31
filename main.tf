@@ -5,7 +5,6 @@ terraform {
       version = "~> 5.0" # Ensures compatibility with recent AWS provider versions
     }
   }
-
   required_version = ">= 1.0.0" # Ensures Terraform version is compatible
 }
 
@@ -17,57 +16,57 @@ provider "aws" {
 resource "aws_security_group" "devops_sg" {
   name        = "My-security-group"
   description = "Allow SSH, HTTP, HTTPS, and custom ports"
-
+  
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # Allow SSH from anywhere (Not secure for production)
   }
-
+  
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # Allow HTTP access from anywhere
   }
-
+  
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # Allow HTTPS access from anywhere
   }
-
-  # Allow Custom Ports
+  
+  # Fixed port ranges - start port must be less than or equal to end port
   ingress {
-    from_port   = 5555
-    to_port     = 5000
+    from_port   = 5000
+    to_port     = 5555
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Allow access to port 5000
+    cidr_blocks = ["0.0.0.0/0"] # Allow access to ports 5000-5555
   }
-
+  
   ingress {
-    from_port   = 5173
-    to_port     = 3000
+    from_port   = 3000
+    to_port     = 5173
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Allow access to port 3000
+    cidr_blocks = ["0.0.0.0/0"] # Allow access to ports 3000-5173
   }
-
+  
   ingress {
     from_port   = 27017
     to_port     = 27017
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # Allow access to port 27017 (MongoDB)
   }
-
+  
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1" # Allow all outbound traffic
     cidr_blocks = ["0.0.0.0/0"]
   }
-
+  
   tags = {
     Name = "My-security-group"
   }
@@ -78,10 +77,10 @@ resource "aws_instance" "free_tier_instance" {
   ami           = "ami-04b4f1a9cf54c11d0" # Ubuntu AMI ID
   instance_type = "t2.micro"              # Free tier eligible instance type
   key_name      = "devops"
-
+  
   # Attach Security Group by ID
   vpc_security_group_ids = [aws_security_group.devops_sg.id]
-
+  
   user_data = <<-EOF
               #!/bin/bash
               sudo apt-get update -y
@@ -90,7 +89,7 @@ resource "aws_instance" "free_tier_instance" {
               sudo systemctl enable docker
               sudo usermod -aG docker ubuntu  # Allow the 'ubuntu' user to run Docker without sudo
               EOF
-
+  
   tags = {
     Name = "FreeTierUbuntuInstance" # Tag for the instance
   }
