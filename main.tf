@@ -40,8 +40,8 @@ resource "aws_security_group" "devops_sg" {
   
   # Fixed port ranges - start port must be less than or equal to end port
   ingress {
-    from_port   = 5555
-    to_port     = 5555
+    from_port   = 5173
+    to_port     = 5173
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # Allow access to ports 5000-5555
   }
