@@ -88,6 +88,7 @@ resource "aws_instance" "free_tier_instance" {
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -aG docker ubuntu  # Allow the 'ubuntu' user to run Docker without sudo
+              newgrp docker
               EOF
   
   tags = {
